@@ -96,9 +96,13 @@ unsigned int createTexture(const char *texturePath , bool isPng) {
 
 void initVAO() {
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f, // left  
-		0.5f, -0.5f, 0.0f, // right 
-		0.0f,  0.5f, 0.0f  // top   
+		-1.0f, -1.0f, 0.0f,  0.0f , 0.0f,	// 左下
+		1.0f, 1.0f, 0.0f,	 1.0f , 1.0f,	// 右上
+		1.0f, -1.0f, 0.0f,	 1.0f, 0.0f,	// 右下
+
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,	// 左下
+		1.0f, 1.0f, 0.0f,	 1.0f, 1.0f,	// 右上
+		-1.0f, 1.0f, 0.0f,	 0.0f, 1.0f		// 左上
 	};
 
 	glGenVertexArrays(1, &VAO);
@@ -108,11 +112,13 @@ void initVAO() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindVertexArray(0);
 }
 
 GLFWwindow* initGL(){
@@ -152,9 +158,16 @@ int main() {
 	
 	initVAO();
 
+	unsigned int textureId = createTexture("image/container2.png", true);
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	
 	Shader lightShader("shader/lightShader.vsh", "shader/lightShader.hlsl");
 	lightShader.use();
 
+	lightShader.setInt("iChannel0", 0);
+	lightShader.setFloat("texture_width", winW);
+	lightShader.setVec2("iResolution", glm::vec2(winW, winH));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -166,9 +179,11 @@ int main() {
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glBindTexture(GL_TEXTURE_2D, textureId);
 		lightShader.use();
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
