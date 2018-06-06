@@ -2,8 +2,8 @@
 out vec4 FragColor;
 
 in vec2 textCoord;
-int vec4 outColor
+in vec3 outColor;
 
 void main(){
-	FragColor = vec4(result , 1.0);
+	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }

@@ -19,7 +19,7 @@ bool firstMouse = true;
 float lastX = winW / 2.0f;
 float lastY = winH / 2.0f;
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-
+unsigned int VAO , VBO;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -48,7 +48,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
-
 
 void processInput(GLFWwindow *window)
 {
@@ -96,9 +95,26 @@ unsigned int createTexture(const char *texturePath , bool isPng) {
 }
 
 void initVAO() {
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f, // left  
+		0.5f, -0.5f, 0.0f, // right 
+		0.0f,  0.5f, 0.0f  // top   
+	};
 
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 }
+
 GLFWwindow* initGL(){
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -134,20 +150,11 @@ int main() {
 	
 	GLFWwindow* window = initGL();
 	
-	unsigned int textureId_0 = createTexture("container2.png",true);
-	unsigned int textureId_1 = createTexture("container2_specular.png", true);
-
 	initVAO();
 
-	Shader lampShader("shader/lampShader.vsh", "shader/lampShader.hlsl");
-	lampShader.use();
+	Shader lightShader("shader/lightShader.vsh", "shader/lightShader.hlsl");
+	lightShader.use();
 
-	float vertexs[] = {
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-	};
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -157,7 +164,11 @@ int main() {
 		lastFrame = currentFrame;
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		lightShader.use();
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
