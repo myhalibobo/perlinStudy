@@ -159,13 +159,12 @@ int main() {
 	
 	initVAO();
 
-	unsigned int textureId = createTexture("image/container2.png", true);
+	unsigned int textureId = createTexture("image/awesomeface.png", true);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	
 	Shader lightShader("shader/lightShader.vsh", "shader/lightShader.hlsl");
 	lightShader.use();
 
-	lightShader.setFloat("texture_width", winW);
 	lightShader.setVec2("iResolution", glm::vec2(winW, winH));
 
 	while (!glfwWindowShouldClose(window))
