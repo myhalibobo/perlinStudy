@@ -113,8 +113,9 @@ void initVAO() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -159,13 +160,11 @@ int main() {
 	initVAO();
 
 	unsigned int textureId = createTexture("image/container2.png", true);
-	glGenTextures(1, &textureId);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	
 	Shader lightShader("shader/lightShader.vsh", "shader/lightShader.hlsl");
 	lightShader.use();
 
-	lightShader.setInt("iChannel0", 0);
 	lightShader.setFloat("texture_width", winW);
 	lightShader.setVec2("iResolution", glm::vec2(winW, winH));
 
